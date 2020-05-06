@@ -21,7 +21,7 @@ public class Loadout {
 
     private Boolean active;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<RGBValue> rgbValues;
 
     @ElementCollection

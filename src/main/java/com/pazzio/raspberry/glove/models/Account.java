@@ -3,10 +3,7 @@ package com.pazzio.raspberry.glove.models;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 @Data
@@ -26,7 +23,7 @@ public class Account {
     private Boolean edited;
     private String serialNumber;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Loadout> loadoutList;
 
 
