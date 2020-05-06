@@ -1,5 +1,6 @@
 package com.pazzio.raspberry.glove.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Account {
+    @JsonIgnore
     @Id
     @GeneratedValue(generator = "strategy-uuid2")
     @GenericGenerator(name="strategy-uuid2", strategy = "uuid2")
