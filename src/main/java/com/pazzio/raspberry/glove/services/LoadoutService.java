@@ -12,6 +12,7 @@ import com.pazzio.raspberry.glove.services.decorators.LoadoutDtoDecorator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,13 +32,11 @@ public class LoadoutService {
 
     public LoadoutDto save(LoadoutDto loadout) {
         final Loadout entity = loadout.getId() != null ? loadoutRepository.getOne(loadout.getId()) : new Loadout();
-
         if(loadout.getRgbValues() != null && !loadout.getRgbValues().isEmpty()){
             for(RGBValueDto rgbValueDto : loadout.getRgbValues()){
                 rgbValueService.save(rgbValueDto);
             }
         }
-
         LoadoutDtoDecorator decorator = LoadoutDtoDecorator.builder().build();
         loadoutMapper.decorate(loadout, decorator);
         loadoutMapper.updateEntity(decorator.init(entity, rgbValueMapper), entity);

@@ -5,10 +5,11 @@ import com.pazzio.raspberry.glove.models.RGBValue;
 import com.pazzio.raspberry.glove.services.decorators.RGBValueDtoDecorator;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface RGBValueMapper {
     RGBValueDto toDto(RGBValue entity);
     RGBValue toEntity(RGBValueDto dto);
