@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping("/api/account")
 public class AccountResource {
@@ -17,7 +19,7 @@ public class AccountResource {
     @Autowired
     private AccountService accountService;
 
-    @PostMapping("/change")
+    @PostMapping(value = "/change", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public ResponseEntity<HashMap<String, Object>> getChange(@RequestBody HashMap<String, String> body){
         HashMap<String, Object> res;
         try{
