@@ -15,6 +15,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 public class LoadoutDto {
+    public String id;
     public Boolean active;
     public List<RGBValueDto> rgbValues;
     public List<Double> pauseValues;

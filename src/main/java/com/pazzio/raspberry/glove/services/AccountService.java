@@ -67,7 +67,8 @@ public class AccountService {
 
     public AccountDto save(AccountDto accountDto){
         String uid = accountDto.getFirebase_token(); // TODO: Implement with FirebaseAuth
-        final Account entity = accountDto.getFirebase_token() != null ? accountRepository.findByUid(uid) : new Account();
+        final Account entity = accountDto.getId() != null ? accountRepository.getOne(accountDto.getId()) :
+                accountDto.getFirebase_token() != null ? accountRepository.findByUid(uid) : new Account();
         entity.setUid(uid);
         List<LoadoutDto> loadoutList = accountDto.getLoadoutList();
         if(loadoutList != null && !loadoutList.isEmpty()){

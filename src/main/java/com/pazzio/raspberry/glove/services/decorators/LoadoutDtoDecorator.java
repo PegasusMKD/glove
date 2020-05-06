@@ -7,9 +7,11 @@ import com.pazzio.raspberry.glove.models.Loadout;
 import com.pazzio.raspberry.glove.models.RGBValue;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.id.UUIDGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
@@ -23,23 +25,24 @@ import static java.util.Optional.ofNullable;
 @EqualsAndHashCode(callSuper = true)
 public class LoadoutDtoDecorator extends LoadoutDto {
 
-    private List<RGBValueDto> emptyRGB = new ArrayList<RGBValueDto>(){{
-        add(new RGBValueDto(0,0,0,0.0));
-        add(new RGBValueDto(0,0,0,0.0));
-        add(new RGBValueDto(0,0,0,0.0));
-        add(new RGBValueDto(0,0,0,0.0));
-        add(new RGBValueDto(0,0,0,0.0));
-    }};
 
     private List<Double> emptyPause = new ArrayList<Double>(){{
-       add(0.0);
-       add(0.0);
-       add(0.0);
-       add(0.0);
-       add(0.0);
+        add(0.0);
+        add(0.0);
+        add(0.0);
+        add(0.0);
+        add(0.0);
     }};
 
-    LoadoutDto init(Loadout entity, String type, RGBValueMapper rgbValueMapper){
+    public LoadoutDto init(Loadout entity, RGBValueMapper rgbValueMapper){
+        List<RGBValueDto> emptyRGB = new ArrayList<RGBValueDto>(){{
+            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
+        }};
+
         active = ofNullable(active).orElse(ofNullable(entity.getActive()).orElse(false));
         rgbValues = ofNullable(rgbValues).orElse(ofNullable(entity.getRgbValues().stream().map(rgbValueMapper::toDto).collect(Collectors.toList())).orElse(emptyRGB));
         pauseValues = ofNullable(pauseValues).orElse(ofNullable(entity.getPauseValues()).orElse(emptyPause));

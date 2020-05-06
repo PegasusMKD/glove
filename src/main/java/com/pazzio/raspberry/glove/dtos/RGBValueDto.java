@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @EqualsAndHashCode
 public class RGBValueDto {
+    public String id;
     public Integer red;
     public Integer blue;
     public Integer green;
