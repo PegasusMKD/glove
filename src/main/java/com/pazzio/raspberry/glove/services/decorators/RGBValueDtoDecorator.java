@@ -16,6 +16,7 @@ import static java.util.Optional.ofNullable;
 public class RGBValueDtoDecorator extends RGBValueDto {
 
     public RGBValueDto init(RGBValue entity){
+        id = ofNullable(id).orElse(ofNullable(entity.getId()).orElse(null));
         red = ofNullable(red).orElse(ofNullable(entity.getRed()).orElse(0));
         green = ofNullable(green).orElse(ofNullable(entity.getGreen()).orElse(0));
         blue = ofNullable(blue).orElse(ofNullable(entity.getBlue()).orElse(0));
