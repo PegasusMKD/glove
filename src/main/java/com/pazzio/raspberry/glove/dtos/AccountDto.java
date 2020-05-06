@@ -14,6 +14,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 public class AccountDto {
+    public String id;
     public String firebase_token;
     public String username;
     public String serialNumber;

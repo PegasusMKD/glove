@@ -15,7 +15,6 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RGBValue {
-    @JsonIgnore
     @Id
     @GenericGenerator(name="strategy-uuid2",strategy = "uuid2")
     @GeneratedValue(generator = "strategy-uuid2")

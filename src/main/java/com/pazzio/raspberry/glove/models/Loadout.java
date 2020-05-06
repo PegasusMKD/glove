@@ -14,7 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 public class Loadout {
-    @JsonIgnore
     @Id
     @GeneratedValue(generator = "strategy-uuid2")
     @GenericGenerator(name="strategy-uuid2", strategy = "uuid2")

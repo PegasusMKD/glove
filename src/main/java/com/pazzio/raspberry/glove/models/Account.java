@@ -14,7 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Account {
-    @JsonIgnore
     @Id
     @GeneratedValue(generator = "strategy-uuid2")
     @GenericGenerator(name="strategy-uuid2", strategy = "uuid2")

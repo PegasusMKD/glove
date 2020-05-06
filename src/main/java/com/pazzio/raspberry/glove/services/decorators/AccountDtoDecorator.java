@@ -21,7 +21,7 @@ import static java.util.Optional.ofNullable;
 @EqualsAndHashCode(callSuper = true)
 public class AccountDtoDecorator extends AccountDto {
 
-    AccountDto init(Account entity, String type, LoadoutMapper loadoutMapper){
+    public AccountDto init(Account entity, LoadoutMapper loadoutMapper){
         firebase_token = ofNullable(firebase_token).orElseThrow(() -> new GloveException(GloveExceptionType.MISSING_TOKEN));
         username = ofNullable(username).orElse(ofNullable(entity.getUsername()).orElse(""));
         serialNumber = ofNullable(serialNumber).orElse(ofNullable(entity.getSerialNumber()).orElse(""));
