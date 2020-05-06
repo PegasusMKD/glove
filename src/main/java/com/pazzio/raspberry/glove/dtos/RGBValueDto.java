@@ -1,17 +1,19 @@
 package com.pazzio.raspberry.glove.dtos;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
 @Data
-@Builder
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class RGBValueDto {
     public Integer red;
     public Integer blue;
     public Integer green;
-    public Integer pauseTime;
-
+    public Double pauseTime;
 }
