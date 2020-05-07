@@ -9,9 +9,12 @@ import json
 
 # Constants
 global start_active
+global script_active
 
 
 # General functions
+
+
 def setModes(pi: io.pi, output_pins: list[int]) -> bool:
     """
     Set the modes for all the pins as output (value will be sent through them)
@@ -47,12 +50,15 @@ def sortRGBValues(loadout: list[Dict[str, object]]) -> list[Dict[str, Any]]:
 
     return sorted_loadout
 
+
 def getActiveLoadout(loadoutList: list):
     for loadout in loadoutList:
         if loadout.active == True:
             return loadout
 
+
 # Main async functions
+
 
 async def setLEDValues(pi: io.pi, pins: list[int], data: Dict[str, Any]):
     """
@@ -144,10 +150,13 @@ async def start(pi: io.pi, serialNumber: str, allPins: list[list[int]]):
                  data={"serialNumber": serialNumber})
 
 
-
-
-
 async def main():
+    """
+    Main function for starting up the script
+
+
+    :return:
+    """
     global script_active
     global start_active
     script_active = True
