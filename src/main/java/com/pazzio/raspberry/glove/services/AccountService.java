@@ -1,7 +1,6 @@
 package com.pazzio.raspberry.glove.services;
 
 import com.pazzio.raspberry.glove.dtos.AccountDto;
-import com.pazzio.raspberry.glove.dtos.LoadoutDto;
 import com.pazzio.raspberry.glove.dtos.handling.GloveException;
 import com.pazzio.raspberry.glove.dtos.handling.GloveExceptionType;
 import com.pazzio.raspberry.glove.mappers.AccountMapper;
@@ -13,9 +12,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +34,7 @@ public class AccountService {
 
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
+    @Transactional(readOnly = true)
     public AccountDto getAccount(AccountDto dto) {
         String token = dto.getToken();
         Account entity = dto.getSerialNumber() != null ? accountRepository.findBySerialNumber(dto.getSerialNumber()) :
@@ -70,18 +70,12 @@ public class AccountService {
         //TODO: Implement sending the notification to the phone
     }
 
+    @Transactional
     public AccountDto save(AccountDto accountDto) {
         String token = accountDto.getToken();
         final Account entity = accountDto.getId() != null ? accountRepository.getOne(accountDto.getId()) :
                 accountDto.getToken() != null ? accountRepository.findByToken(token) : new Account();
         entity.setToken(token);
-        System.out.println(encoder.encode(accountDto.getPassword()));
-        List<LoadoutDto> loadoutList = accountDto.getLoadoutList();
-        if (loadoutList != null && !loadoutList.isEmpty()) {
-            for (LoadoutDto loadout : loadoutList) {
-                loadoutService.save(loadout);
-            }
-        }
         AccountDtoDecorator decorator = AccountDtoDecorator.builder().build();
         accountMapper.decorate(accountDto, decorator);
         accountMapper.updateEntity(decorator.init(entity, loadoutMapper), entity);

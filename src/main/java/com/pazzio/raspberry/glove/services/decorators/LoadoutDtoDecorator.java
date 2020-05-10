@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
@@ -33,7 +32,7 @@ public class LoadoutDtoDecorator extends LoadoutDto {
     }};
 
     public LoadoutDto init(Loadout entity, RGBValueMapper rgbValueMapper){
-        List<RGBValueDto> emptyRGB = new ArrayList<RGBValueDto>(){{
+        List<RGBValueDto> emptyRGB = new ArrayList<RGBValueDto>() {{
             add(new RGBValueDto(UUID.randomUUID().toString(), 1, 0.0, 0, 0, 0, 0.0));
             add(new RGBValueDto(UUID.randomUUID().toString(), 2, 0.0, 0, 0, 0, 0.0));
             add(new RGBValueDto(UUID.randomUUID().toString(), 3, 0.0, 0, 0, 0, 0.0));
@@ -42,7 +41,8 @@ public class LoadoutDtoDecorator extends LoadoutDto {
         }};
 
         active = ofNullable(active).orElse(ofNullable(entity.getActive()).orElse(false));
-        rgbValues = ofNullable(rgbValues).orElse(ofNullable(entity.getRgbValues().stream().map(rgbValueMapper::toDto).collect(Collectors.toList())).orElse(emptyRGB));
+        System.out.println(rgbValues);
+        rgbValues = ofNullable(rgbValues).orElse(emptyRGB);
         pauseValues = ofNullable(pauseValues).orElse(ofNullable(entity.getPauseValues()).orElse(emptyPause));
         return this;
     }

@@ -5,8 +5,12 @@ import com.pazzio.raspberry.glove.dtos.AccountDto;
 import com.pazzio.raspberry.glove.dtos.LoadoutDto;
 import com.pazzio.raspberry.glove.dtos.RGBValueDto;
 import com.pazzio.raspberry.glove.services.AccountService;
+import com.pazzio.raspberry.glove.web.main.DemoView;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -46,11 +50,9 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
         buildLoadout();
     }
 
-    public void buildExplanation() {
-
-    }
-
-    public List<Button> buildRGBLayouts(VerticalLayout loadout) {
+    public List<Button> buildRGBLayouts(HorizontalLayout loadout) {
+        VerticalLayout mainRGBLayout = new VerticalLayout();
+        mainRGBLayout.add(new H3("Enter the values for each finger"));
         List<RGBValueDto> rgbValues = new ArrayList<>();
         List<Button> saveButtons = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
@@ -91,37 +93,82 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
                 } catch (ValidationException ex) {
                     ex.printStackTrace();
                 }
-                System.out.println(rgbValue);
-
             });
 
             saveButtons.add(getValues);
             rgbLayout.add(fingerLabel, activeTime, colorPicker, pauseTime, getValues);
             rgbLayout.setAlignItems(Alignment.END);
-            loadout.add(rgbLayout);
+            mainRGBLayout.add(rgbLayout);
         }
+        loadout.add(mainRGBLayout);
         loadoutDto.setRgbValues(rgbValues);
         return saveButtons;
     }
 
     public void buildLoadout() {
         VerticalLayout loadout = new VerticalLayout();
+
         Button mainSaveButton = new Button("Save");
         mainSaveButton.setIcon(new Icon(VaadinIcon.ARCHIVE));
+        mainSaveButton.getElement().getStyle().set("margin-left", "auto");
         loadout.add(mainSaveButton);
-        List<Button> saveButtons = buildRGBLayouts(loadout);
+
+        loadout.add(new Span("The legend/explanation of the fields:"));
+        loadout.add(new Span("- Active Time - how much time (in seconds) do you want to have that finger's LED be on (you can enter decimals)"));
+        loadout.add(new Span("- Color - You open the color picker, pick a color that you want the LED to display"));
+        loadout.add(new Span("- Pause Time - How much time do you want the LED of that particular finger to be off"));
+
+        HorizontalLayout lowerLoadout = new HorizontalLayout();
+
+        List<Button> saveButtons = buildRGBLayouts(lowerLoadout);
+        List<NumberField> pauseValues = buildPauseValues(lowerLoadout);
+        Checkbox active = new Checkbox("Loadout is active", true);
+
+        loadout.add(active);
+        loadout.add(lowerLoadout);
+
         mainSaveButton.addClickListener(e -> {
-            for (Button button : saveButtons) {
-                button.click();
+            List<Double> realPauseValues = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                saveButtons.get(i).click();
+                realPauseValues.add(pauseValues.get(i).getValue());
             }
-            System.out.println(loadoutDto.getRgbValues());
+            loadoutDto.setPauseValues(realPauseValues);
+            loadoutDto.setActive(active.getValue());
+            accountDto.getLoadoutList().add(loadoutDto);
+            accountService.save(accountDto);
+            mainSaveButton.getUI().ifPresent(ui -> ui.navigate(DemoView.class, accountDto.token));
         });
+
         add(loadout);
     }
 
-    public void buildTopLoadout() {
-//        Checkbox active = new Checkbox("Loadout is active:", true);
-
+    public List<NumberField> buildPauseValues(HorizontalLayout loadout) {
+        VerticalLayout mainPauseLayout = new VerticalLayout();
+        List<NumberField> pauseValues = new ArrayList<>();
+        mainPauseLayout.add(new H3("Enter how much time you'd like the script to wait between activating between each finger"));
+        for (int i = 0; i < 4; i++) {
+            HorizontalLayout row = new HorizontalLayout();
+            Label fingerStart = new Label(String.format("Finger %d", i + 1));
+            NumberField pauseValue = new NumberField();
+            pauseValue.setValue(0.0);
+            pauseValues.add(i, pauseValue);
+            Label fingerEnd = new Label(String.format("Finger %d", i + 2));
+            row.setAlignItems(Alignment.CENTER);
+            row.add(fingerStart, pauseValue, fingerEnd);
+            mainPauseLayout.add(row);
+        }
+        HorizontalLayout row = new HorizontalLayout();
+        Label fingerStart = new Label("Finger 5");
+        NumberField pauseValue = new NumberField();
+        pauseValue.setValue(0.0);
+        pauseValues.add(4, pauseValue);
+        Label fingerEnd = new Label("Finger 1");
+        row.setAlignItems(Alignment.CENTER);
+        row.add(fingerStart, pauseValue, fingerEnd);
+        mainPauseLayout.add(row);
+        loadout.add(mainPauseLayout);
+        return pauseValues;
     }
 
 }

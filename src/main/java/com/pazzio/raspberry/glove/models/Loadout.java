@@ -1,8 +1,9 @@
 package com.pazzio.raspberry.glove.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import java.util.List;
@@ -21,9 +22,10 @@ public class Loadout {
 
     private Boolean active;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<RGBValue> rgbValues;
 
+    @LazyCollection(LazyCollectionOption.FALSE)
     @ElementCollection
     private List<Double> pauseValues;
 }

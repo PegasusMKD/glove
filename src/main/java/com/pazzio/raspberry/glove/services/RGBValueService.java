@@ -7,6 +7,7 @@ import com.pazzio.raspberry.glove.repositories.RGBValueRepository;
 import com.pazzio.raspberry.glove.services.decorators.RGBValueDtoDecorator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RGBValueService {
@@ -17,6 +18,7 @@ public class RGBValueService {
     @Autowired
     private RGBValueMapper rgbValueMapper;
 
+    @Transactional
     public RGBValueDto save(RGBValueDto rgbValueDto) {
         final RGBValue entity = rgbValueDto.getId() != null ? rgbValueRepository.getOne(rgbValueDto.getId()) : new RGBValue();
         RGBValueDtoDecorator decorator = RGBValueDtoDecorator.builder().build();

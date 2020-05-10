@@ -24,7 +24,11 @@ public class AccountDtoDecorator extends AccountDto {
         id = ofNullable(id).orElse(ofNullable(entity.getId()).orElse(null));
         token = ofNullable(token).orElse(RandomStringUtils.randomAlphanumeric(20));
         username = ofNullable(username).orElse(ofNullable(entity.getUsername()).orElse(""));
-        password = ofNullable(new BCryptPasswordEncoder().encode(password)).orElse(entity.getPassword());
+        if (password != null) {
+            password = new BCryptPasswordEncoder().encode(password);
+        } else {
+            password = entity.getPassword();
+        }
         serialNumber = ofNullable(serialNumber).orElse(ofNullable(entity.getSerialNumber()).orElse(""));
         if (loadoutList == null && entity.getLoadoutList() != null) {
             loadoutList = entity.getLoadoutList().stream().map(loadoutMapper::toDto).collect(Collectors.toList());

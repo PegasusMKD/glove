@@ -25,7 +25,7 @@ public class Account {
     private Boolean edited;
     private String serialNumber;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Loadout> loadoutList;
 
     public void setPassword(String password) {

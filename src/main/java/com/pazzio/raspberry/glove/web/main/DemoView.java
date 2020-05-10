@@ -1,10 +1,15 @@
 package com.pazzio.raspberry.glove.web.main;
 
+import com.github.juchar.colorpicker.ColorPickerField;
 import com.pazzio.raspberry.glove.dtos.AccountDto;
+import com.pazzio.raspberry.glove.dtos.LoadoutDto;
+import com.pazzio.raspberry.glove.dtos.RGBValueDto;
 import com.pazzio.raspberry.glove.services.AccountService;
 import com.pazzio.raspberry.glove.web.create.CreateView;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -15,6 +20,9 @@ import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.awt.*;
+
 
 @Route("main")
 @PageTitle("Dashboard")
@@ -55,8 +63,50 @@ public class DemoView extends VerticalLayout implements HasUrlParameter<String> 
     }
 
     public void buildMainLayout() {
+        VerticalLayout mainLayout = new VerticalLayout();
         if (accountDto.getLoadoutList() == null || accountDto.getLoadoutList().isEmpty()) {
             add(new Paragraph("Please create some loadouts!"));
         }
+        HorizontalLayout row = new HorizontalLayout();
+        int numberInRow = 0;
+        for (LoadoutDto loadoutDto : accountDto.getLoadoutList()) {
+            VerticalLayout loadoutLayout = buildLoadoutBox(loadoutDto);
+            row.add(loadoutLayout);
+            numberInRow++;
+            if (numberInRow == 4) {
+                mainLayout.add(row);
+                row = new HorizontalLayout();
+                numberInRow = 0;
+            }
+        }
+        if (numberInRow != 0) {
+            mainLayout.add(row);
+        }
+        add(mainLayout);
     }
+
+
+    public VerticalLayout buildLoadoutBox(LoadoutDto loadoutDto) {
+        VerticalLayout loadoutLayout = new VerticalLayout();
+        Button edit = new Button("Edit");
+        edit.setIcon(new Icon(VaadinIcon.PENCIL));
+        loadoutLayout.add(edit);
+        Checkbox active = new Checkbox("Loadout is active", loadoutDto.active);
+        active.setReadOnly(true);
+        loadoutLayout.add(active);
+        for (RGBValueDto rgbValueDto : loadoutDto.getRgbValues()) {
+            HorizontalLayout rgbLayout = new HorizontalLayout();
+
+            Label name = new Label(String.format("Finger %d", rgbValueDto.finger));
+            rgbLayout.add(name);
+            ColorPickerField colorPickerField = new ColorPickerField("as Color", new Color(rgbValueDto.red, rgbValueDto.green, rgbValueDto.blue), "#fff");
+            colorPickerField.setReadOnly(true);
+            rgbLayout.add(colorPickerField);
+            rgbLayout.setAlignItems(Alignment.END);
+            loadoutLayout.add(rgbLayout);
+        }
+        loadoutLayout.getElement().getStyle().set("border", "2px solid black");
+        return loadoutLayout;
+    }
+
 }
