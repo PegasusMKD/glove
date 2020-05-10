@@ -18,14 +18,14 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationException;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Optional.ofNullable;
 
@@ -38,15 +38,26 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
 
     private AccountService accountService;
 
+    private Integer idx;
+
     public CreateView(@Autowired AccountService accountService) {
         setSizeFull();
         this.accountService = accountService;
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, String token) {
-        accountDto.setToken(token);
+    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String token) {
+        Location location = beforeEvent.getLocation();
+        QueryParameters queryParameters = location.getQueryParameters();
+        Map<String, List<String>> parametersMap = queryParameters.getParameters();
+
+        accountDto.setToken(parametersMap.get("token").get(0));
         this.accountDto = accountService.getAccount(accountDto);
+        if(parametersMap.get("idx") != null){
+            idx = Integer.parseInt(parametersMap.get("idx").get(0));
+            loadoutDto = accountDto.getLoadoutList().get(idx);
+        }
+
         buildLoadout();
     }
 
@@ -57,13 +68,19 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
         List<Button> saveButtons = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             Binder<RGBValueDto> rgbValueDtoBinder = new Binder<>(RGBValueDto.class);
-            rgbValues.add(i, new RGBValueDto());
+            if(idx != null){
+                rgbValues.add(i, loadoutDto.getRgbValues().get(i));
+            } else {
+                rgbValues.add(i, new RGBValueDto());
+            }
 
             HorizontalLayout rgbLayout = new HorizontalLayout();
             Label fingerLabel = new Label(String.format("Finger %d", i + 1));
 
             NumberField activeTime = new NumberField("Active Time (in seconds)");
-            activeTime.setValue(0.0);
+            if(idx == null){
+                activeTime.setValue(0.0);
+            }
             rgbValueDtoBinder.forField(activeTime).bind(RGBValueDto::getActiveTime, RGBValueDto::setActiveTime);
 
             ColorPickerField colorPicker = new ColorPickerField("Color", Color.BLUE, "#fff");
@@ -77,9 +94,10 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
                     }));
 
             NumberField pauseTime = new NumberField("Pause Time (in seconds)");
-            pauseTime.setValue(0.0);
             rgbValueDtoBinder.forField(pauseTime).bind(RGBValueDto::getPauseTime, RGBValueDto::setPauseTime);
-
+            if(idx == null){
+                pauseTime.setValue(0.0);
+            }
 
             Button getValues = new Button("Get values TEST");
             getValues.setVisible(false);
@@ -94,7 +112,9 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
                     ex.printStackTrace();
                 }
             });
-
+            if(idx != null){
+                rgbValueDtoBinder.readBean(rgbValues.get(i));
+            }
             saveButtons.add(getValues);
             rgbLayout.add(fingerLabel, activeTime, colorPicker, pauseTime, getValues);
             rgbLayout.setAlignItems(Alignment.END);
@@ -135,7 +155,10 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
             }
             loadoutDto.setPauseValues(realPauseValues);
             loadoutDto.setActive(active.getValue());
-            accountDto.getLoadoutList().add(loadoutDto);
+            if(idx == null){
+                accountDto.getLoadoutList().add(loadoutDto);
+            }
+            loadoutDto.getRgbValues().sort(Comparator.comparing(o -> o.finger));
             accountService.save(accountDto);
             mainSaveButton.getUI().ifPresent(ui -> ui.navigate(DemoView.class, accountDto.token));
         });
@@ -151,7 +174,11 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
             HorizontalLayout row = new HorizontalLayout();
             Label fingerStart = new Label(String.format("Finger %d", i + 1));
             NumberField pauseValue = new NumberField();
-            pauseValue.setValue(0.0);
+            if(idx == null){
+                pauseValue.setValue(0.0);
+            } else {
+                pauseValue.setValue(loadoutDto.getPauseValues().get(i));
+            }
             pauseValues.add(i, pauseValue);
             Label fingerEnd = new Label(String.format("Finger %d", i + 2));
             row.setAlignItems(Alignment.CENTER);
@@ -161,7 +188,11 @@ public class CreateView extends VerticalLayout implements HasUrlParameter<String
         HorizontalLayout row = new HorizontalLayout();
         Label fingerStart = new Label("Finger 5");
         NumberField pauseValue = new NumberField();
-        pauseValue.setValue(0.0);
+        if(idx == null){
+            pauseValue.setValue(0.0);
+        } else {
+            pauseValue.setValue(loadoutDto.getPauseValues().get(4));
+        }
         pauseValues.add(4, pauseValue);
         Label fingerEnd = new Label("Finger 1");
         row.setAlignItems(Alignment.CENTER);

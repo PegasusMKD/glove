@@ -23,6 +23,7 @@ public class Loadout {
     private Boolean active;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OrderColumn(name = "RGB_ORDER")
     private List<RGBValue> rgbValues;
 
     @LazyCollection(LazyCollectionOption.FALSE)

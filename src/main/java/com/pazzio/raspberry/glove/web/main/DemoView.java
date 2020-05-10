@@ -15,13 +15,15 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.awt.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Route("main")
@@ -48,12 +50,20 @@ public class DemoView extends VerticalLayout implements HasUrlParameter<String> 
     public void buildTopBar() {
         Button createButton = new Button("Create Loadout");
         H3 name = new H3();
-        name.setText(String.format("Logged in as %s", accountDto.username));
+        name.setText(String.format("Logged in as %s (serial number: %s)", accountDto.username, accountDto.serialNumber));
         HorizontalLayout topBar = new HorizontalLayout();
         topBar.setWidth("100%");
         createButton.getElement().getStyle().set("margin-left", "auto");
         createButton.setIcon(new Icon(VaadinIcon.PLUS));
-        createButton.addClickListener(e -> createButton.getUI().ifPresent(ui -> ui.navigate(CreateView.class, accountDto.token)));
+        createButton.addClickListener(e -> createButton.getUI().ifPresent(ui -> {
+            Map<String, List<String>> queryParameters = new HashMap<>();
+            List<String> token = new ArrayList<String>(){{
+                add(accountDto.token);
+            }};
+            queryParameters.put("token", token);
+
+            ui.navigate("create", new QueryParameters(queryParameters));
+        }));
         createButton.getElement().getStyle().set("margin-right", "60px");
         topBar.add(name);
         topBar.add(createButton);
@@ -66,11 +76,14 @@ public class DemoView extends VerticalLayout implements HasUrlParameter<String> 
         VerticalLayout mainLayout = new VerticalLayout();
         if (accountDto.getLoadoutList() == null || accountDto.getLoadoutList().isEmpty()) {
             add(new Paragraph("Please create some loadouts!"));
+            return;
         }
         HorizontalLayout row = new HorizontalLayout();
         int numberInRow = 0;
-        for (LoadoutDto loadoutDto : accountDto.getLoadoutList()) {
-            VerticalLayout loadoutLayout = buildLoadoutBox(loadoutDto);
+        ArrayList<LoadoutDto> loadoutDtoList = (ArrayList<LoadoutDto>) accountDto.getLoadoutList();
+        for (int i=0;i<accountDto.getLoadoutList().size(); i++) {
+            LoadoutDto loadoutDto = loadoutDtoList.get(i);
+            VerticalLayout loadoutLayout = buildLoadoutBox(loadoutDto, i);
             row.add(loadoutLayout);
             numberInRow++;
             if (numberInRow == 4) {
@@ -86,10 +99,22 @@ public class DemoView extends VerticalLayout implements HasUrlParameter<String> 
     }
 
 
-    public VerticalLayout buildLoadoutBox(LoadoutDto loadoutDto) {
+    public VerticalLayout buildLoadoutBox(LoadoutDto loadoutDto, Integer idx) {
         VerticalLayout loadoutLayout = new VerticalLayout();
         Button edit = new Button("Edit");
         edit.setIcon(new Icon(VaadinIcon.PENCIL));
+        edit.addClickListener(e -> {
+            Map<String, List<String>> queryParameters = new HashMap<>();
+            List<String> token = new ArrayList<String>(){{
+                add(accountDto.token);
+            }};
+            queryParameters.put("token", token);
+            List<String> idxList = new ArrayList<String>(){{
+                add(idx.toString());
+            }};
+            queryParameters.put("idx", idxList);
+            edit.getUI().ifPresent(ui -> ui.navigate("create", new QueryParameters(queryParameters)));
+        });
         loadoutLayout.add(edit);
         Checkbox active = new Checkbox("Loadout is active", loadoutDto.active);
         active.setReadOnly(true);
@@ -106,6 +131,7 @@ public class DemoView extends VerticalLayout implements HasUrlParameter<String> 
             loadoutLayout.add(rgbLayout);
         }
         loadoutLayout.getElement().getStyle().set("border", "2px solid black");
+        loadoutLayout.getElement().getStyle().set("margin-right","7em");
         return loadoutLayout;
     }
 
