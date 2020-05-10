@@ -13,6 +13,8 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode
 public class RGBValueDto {
     public String id;
+    public Integer finger;
+    public Double activeTime;
     public Integer red;
     public Integer blue;
     public Integer green;

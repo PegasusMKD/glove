@@ -5,5 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AccountRepository extends JpaRepository<Account, String> {
     Account findBySerialNumber(String serialNumber);
-    Account findByUid(String uid);
+
+    Account findByToken(String token);
+
+    Account findByUsername(String username);
 }

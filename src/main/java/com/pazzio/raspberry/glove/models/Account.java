@@ -1,8 +1,8 @@
 package com.pazzio.raspberry.glove.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.util.List;
@@ -16,16 +16,21 @@ import java.util.List;
 public class Account {
     @Id
     @GeneratedValue(generator = "strategy-uuid2")
-    @GenericGenerator(name="strategy-uuid2", strategy = "uuid2")
+    @GenericGenerator(name = "strategy-uuid2", strategy = "uuid2")
     private String id;
 
     private String username;
-    private String uid;
+    private String password;
+    private String token;
     private Boolean edited;
     private String serialNumber;
 
     @OneToMany(fetch = FetchType.EAGER)
     private List<Loadout> loadoutList;
+
+    public void setPassword(String password) {
+        this.password = new BCryptPasswordEncoder().encode(password);
+    }
 
 
 }

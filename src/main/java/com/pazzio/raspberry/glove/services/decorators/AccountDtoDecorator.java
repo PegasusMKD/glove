@@ -1,13 +1,12 @@
 package com.pazzio.raspberry.glove.services.decorators;
 
 import com.pazzio.raspberry.glove.dtos.AccountDto;
-import com.pazzio.raspberry.glove.dtos.handling.GloveException;
-import com.pazzio.raspberry.glove.dtos.handling.GloveExceptionType;
 import com.pazzio.raspberry.glove.mappers.LoadoutMapper;
 import com.pazzio.raspberry.glove.models.Account;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.stream.Collectors;
 
@@ -21,12 +20,15 @@ import static java.util.Optional.ofNullable;
 @EqualsAndHashCode(callSuper = true)
 public class AccountDtoDecorator extends AccountDto {
 
-    public AccountDto init(Account entity, LoadoutMapper loadoutMapper){
+    public AccountDto init(Account entity, LoadoutMapper loadoutMapper) {
         id = ofNullable(id).orElse(ofNullable(entity.getId()).orElse(null));
-        firebase_token = ofNullable(firebase_token).orElseThrow(() -> new GloveException(GloveExceptionType.MISSING_TOKEN));
+        token = ofNullable(token).orElse(RandomStringUtils.randomAlphanumeric(20));
         username = ofNullable(username).orElse(ofNullable(entity.getUsername()).orElse(""));
+        password = ofNullable(new BCryptPasswordEncoder().encode(password)).orElse(entity.getPassword());
         serialNumber = ofNullable(serialNumber).orElse(ofNullable(entity.getSerialNumber()).orElse(""));
-        loadoutList = entity.getLoadoutList().stream().map(loadoutMapper::toDto).collect(Collectors.toList());
+        if (loadoutList == null && entity.getLoadoutList() != null) {
+            loadoutList = entity.getLoadoutList().stream().map(loadoutMapper::toDto).collect(Collectors.toList());
+        }
         return this;
     }
 }

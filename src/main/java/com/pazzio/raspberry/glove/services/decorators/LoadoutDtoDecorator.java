@@ -4,10 +4,8 @@ import com.pazzio.raspberry.glove.dtos.LoadoutDto;
 import com.pazzio.raspberry.glove.dtos.RGBValueDto;
 import com.pazzio.raspberry.glove.mappers.RGBValueMapper;
 import com.pazzio.raspberry.glove.models.Loadout;
-import com.pazzio.raspberry.glove.models.RGBValue;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.id.UUIDGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +34,11 @@ public class LoadoutDtoDecorator extends LoadoutDto {
 
     public LoadoutDto init(Loadout entity, RGBValueMapper rgbValueMapper){
         List<RGBValueDto> emptyRGB = new ArrayList<RGBValueDto>(){{
-            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
-            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
-            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
-            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
-            add(new RGBValueDto(UUID.randomUUID().toString(),0,0,0,0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(), 1, 0.0, 0, 0, 0, 0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(), 2, 0.0, 0, 0, 0, 0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(), 3, 0.0, 0, 0, 0, 0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(), 4, 0.0, 0, 0, 0, 0.0));
+            add(new RGBValueDto(UUID.randomUUID().toString(), 5, 0.0, 0, 0, 0, 0.0));
         }};
 
         active = ofNullable(active).orElse(ofNullable(entity.getActive()).orElse(false));

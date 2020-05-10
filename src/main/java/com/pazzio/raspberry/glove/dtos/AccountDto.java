@@ -15,8 +15,9 @@ import java.util.List;
 @EqualsAndHashCode
 public class AccountDto {
     public String id;
-    public String firebase_token;
+    public String token;
     public String username;
+    public String password;
     public String serialNumber;
     public List<LoadoutDto> loadoutList;
 
