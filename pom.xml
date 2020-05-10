@@ -176,121 +176,78 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>production</id>
-            <properties>
-                <vaadin.productionMode>true</vaadin.productionMode>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>com.vaadin</groupId>
-                    <artifactId>flow-server-production-mode</artifactId>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <!-- Clean build and startup time for Vaadin apps sometimes may exceed
-                             the default Spring Boot's 30sec timeout.  -->
-                        <configuration>
-                            <wait>500</wait>
-                            <maxAttempts>240</maxAttempts>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.9.0</version>
-                        <executions>
-                            <execution>
-                                <id>install node and npm</id>
-                                <goals>
-                                    <goal>install-node-and-npm</goal>
-                                </goals>
-                                <phase>generate-resources</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <nodeVersion>v10.16.2</nodeVersion>
-                        </configuration>
-                    </plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <!-- Clean build and startup time for Vaadin apps sometimes may exceed
+                     the default Spring Boot's 30sec timeout.  -->
+                <configuration>
+                    <wait>500</wait>
+                    <maxAttempts>240</maxAttempts>
+                </configuration>
+            </plugin>
+            <!--
+                Take care of synchronizing java dependencies and imports in
+                package.json and main.js files.
+                It also creates webpack.config.js if not exists yet.
+            -->
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${org.projectlombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
+                        <compilerArg>-Amapstruct.unmappedTargetPolicy=WARN</compilerArg>
+                        <!--                        <compilerArg>-Aquerydsl.entityAccessors=true</compilerArg>-->
+                        <!--                        <compilerArg>-Aquerydsl.useFields=false</compilerArg>-->
+                    </compilerArgs>
+                    <generatedSourcesDirectory>target/generated-sources/java</generatedSourcesDirectory>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.querydsl</groupId>
+                        <artifactId>querydsl-apt</artifactId>
+                        <version>${querydsl.version}</version>
+                        <classifier>jpa</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hibernate.javax.persistence</groupId>
+                        <artifactId>hibernate-jpa-2.1-api</artifactId>
+                        <version>1.0.0.Final</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 
-                    <!--
-                        Take care of synchronizing java dependencies and imports in
-                        package.json and main.js files.
-                        It also creates webpack.config.js if not exists yet.
-                    -->
-                    <plugin>
-                        <groupId>com.vaadin</groupId>
-                        <artifactId>vaadin-maven-plugin</artifactId>
-                        <version>${vaadin.version}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>prepare-frontend</goal>
-                                    <goal>build-frontend</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.heroku.sdk</groupId>
-                        <artifactId>heroku-maven-plugin</artifactId>
-                        <version>2.0.13</version>
-                        <configuration>
-                            <appName>glove-application</appName>
-                            <processTypes>
-                                <web>java $JAVA_OPTS -jar target/glove-0.0.1-SNAPSHOT.jar --server.port=$PORT</web>
-                            </processTypes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.8.1</version>
-                        <configuration>
-                            <source>${java.version}</source>
-                            <target>${java.version}</target>
-                            <useIncrementalCompilation>false</useIncrementalCompilation>
-                            <annotationProcessorPaths>
-                                <path>
-                                    <groupId>org.projectlombok</groupId>
-                                    <artifactId>lombok</artifactId>
-                                    <version>${org.projectlombok.version}</version>
-                                </path>
-                                <path>
-                                    <groupId>org.mapstruct</groupId>
-                                    <artifactId>mapstruct-processor</artifactId>
-                                    <version>${org.mapstruct.version}</version>
-                                </path>
-                            </annotationProcessorPaths>
-                            <compilerArgs>
-                                <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
-                                <compilerArg>-Amapstruct.unmappedTargetPolicy=WARN</compilerArg>
-                                <!--                        <compilerArg>-Aquerydsl.entityAccessors=true</compilerArg>-->
-                                <!--                        <compilerArg>-Aquerydsl.useFields=false</compilerArg>-->
-                            </compilerArgs>
-                            <generatedSourcesDirectory>target/generated-sources/java</generatedSourcesDirectory>
-                        </configuration>
-                        <dependencies>
-                            <dependency>
-                                <groupId>com.querydsl</groupId>
-                                <artifactId>querydsl-apt</artifactId>
-                                <version>${querydsl.version}</version>
-                                <classifier>jpa</classifier>
-                            </dependency>
-                            <dependency>
-                                <groupId>org.hibernate.javax.persistence</groupId>
-                                <artifactId>hibernate-jpa-2.1-api</artifactId>
-                                <version>1.0.0.Final</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

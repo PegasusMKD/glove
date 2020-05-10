@@ -31,7 +31,4 @@ build/
 .vscode/
 
 node_modules/
-src/
-mvnw
-mvnw.cmd
-notes.txt
+
