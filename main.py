@@ -30,11 +30,13 @@ def setModes(pi: io.pi, output_pins: List[int]) -> bool:
     :param input_pins: The pins that are being used on the micro-controller as a flattened list
     :return: Whether it successfully set the modes of the pins
     """
+    print(output_pins)
     for pin in output_pins:
         try:
             pi.set_mode(pin, io.OUTPUT)
         except:
             return False
+    print("Set all of the modes!")
     return True
 
 
@@ -196,11 +198,14 @@ async def main():
 
     :return:
     """
+    print("calls script")
     global script_active
     global start_active
     script_active = True
     start_active = True
     pi = io.pi()
+    print("got the pi!")
+    print(pi)
     pins = []
     if os.path.isfile("./settings.json"):
         with open("./settings.json", "r+") as f:
@@ -219,7 +224,9 @@ async def main():
     flattened_pins = [item for sublist in pins for item in sublist]
 
     if not setModes(pi, flattened_pins):
-        return "Something went wrong with the mode setting! Please try again!"
+        print("Something went wrong with the mode setting! Please try again!")
+        return
+
     loop = asyncio.get_event_loop()
     loop.create_task(start(pi, serialNumber, pins))
     while script_active:
