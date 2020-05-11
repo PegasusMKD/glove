@@ -66,7 +66,7 @@ def getActiveLoadout(loadoutList: list):
 # Main async functions
 
 
-async def setLEDValues(pi: List[int], pins: List[int], data):
+async def setLEDValues(pi: io.pi, pins: List[int], data):
     """
     Function which sets the coloring values for a finger
 
@@ -82,7 +82,7 @@ async def setLEDValues(pi: List[int], pins: List[int], data):
     print(f"{data}\n")
     for pin, color in zip(pins, ["red","green","blue"]):
         print(f"Set pin {pin} with value {data[color]} on data {data}")
-        # pi.set_PWM_dutycycle(pin, data[color])
+        pi.set_PWM_dutycycle(pin, data[color])
 
     await sleep(data["activeTime"])
     print(f"Finished wait time for {data}")
@@ -102,7 +102,7 @@ async def setLEDValues(pi: List[int], pins: List[int], data):
         loop.create_task(setLEDValues(pi, pins, data))
 
 
-async def startLEDs(pi: List[int], loadoutData: Dict[str, Any], allPins: List[List[int]]):
+async def startLEDs(pi: io.pi, loadoutData: Dict[str, Any], allPins: List[List[int]]):
     """
     Function which starts the coloring on the fingers
 
@@ -136,10 +136,10 @@ async def startLEDs(pi: List[int], loadoutData: Dict[str, Any], allPins: List[Li
             loop.create_task(setLEDValues(pi, pinsFinger, empty))
 
         print("Resetting back!")
-        loop.create_task(startLEDs([0], loadoutData, allPins))
+        loop.create_task(startLEDs(pi, loadoutData, allPins))
 
 
-async def start(pi: List[int], serialNumber: str, allPins: List[List[int]]):
+async def start(pi: io.pi, serialNumber: str, allPins: List[List[int]]):
     """
     The real "main" of the script
 
@@ -155,7 +155,7 @@ async def start(pi: List[int], serialNumber: str, allPins: List[List[int]]):
     data = json.loads(account_data.content)
     print(data)
     loop = asyncio.get_event_loop()
-    loop.create_task(startLEDs([0], getActiveLoadout(data), allPins))
+    loop.create_task(startLEDs(pi, getActiveLoadout(data), allPins))
     print("Called the startLEDs again!")
     while script_active:
         await sleep(10)
@@ -183,7 +183,7 @@ async def start(pi: List[int], serialNumber: str, allPins: List[List[int]]):
 
             loop = asyncio.get_event_loop()
             print("Called the startLEDs")
-            loop.create_task(startLEDs([0], getActiveLoadout(new_data["loadoutList"]), allPins))
+            loop.create_task(startLEDs(pi, getActiveLoadout(new_data["loadoutList"]), allPins))
             # Not needed since not using Android and no need to tell the app that it reset the values
             # post("http://34.107.52.197:8080/api/account/changed", headers={"Content-Type": "application/json"},
             #      data={"serialNumber": serialNumber})
@@ -200,7 +200,7 @@ async def main():
     global start_active
     script_active = True
     start_active = True
-    # pi = io.pi()
+    pi = io.pi()
     pins = []
     if os.path.isfile("./settings.json"):
         with open("./settings.json", "r+") as f:
@@ -218,10 +218,10 @@ async def main():
 
     flattened_pins = [item for sublist in pins for item in sublist]
 
-    # if not setModes(pi, flattened_pins):
-    #     return "Something went wrong with the mode setting! Please try again!"
+    if not setModes(pi, flattened_pins):
+        return "Something went wrong with the mode setting! Please try again!"
     loop = asyncio.get_event_loop()
-    loop.create_task(start([0], serialNumber, pins))
+    loop.create_task(start(pi, serialNumber, pins))
     while script_active:
         print("Working!")
         await sleep(10)
