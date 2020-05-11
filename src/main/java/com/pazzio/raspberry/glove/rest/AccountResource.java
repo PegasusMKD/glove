@@ -23,7 +23,9 @@ public class AccountResource {
     public ResponseEntity<HashMap<String, Object>> getChange(@RequestBody HashMap<String, String> body){
         HashMap<String, Object> res;
         try{
+            System.out.println(body);
             res = accountService.getChange(body.get("serialNumber"));
+            System.out.println(res);
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }

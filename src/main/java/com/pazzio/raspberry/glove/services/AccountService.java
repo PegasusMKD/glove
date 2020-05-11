@@ -53,13 +53,17 @@ public class AccountService {
 
     public HashMap<String, Object> getChange(String serialNumber){
         Account user = accountRepository.findBySerialNumber(serialNumber);
+        System.out.println(user);
         HashMap<String, Object> ret = new HashMap<>();
         if(user.getEdited()){
+            user.setEdited(false);
             ret.put("active", true);
             ret.put("loadoutList",user.getLoadoutList().stream().map(loadoutMapper::toDto).collect(Collectors.toList()));
+            accountRepository.save(user);
         } else {
             ret.put("active", false);
         }
+        System.out.println(ret);
         return ret;
     }
 
@@ -79,6 +83,7 @@ public class AccountService {
         AccountDtoDecorator decorator = AccountDtoDecorator.builder().build();
         accountMapper.decorate(accountDto, decorator);
         accountMapper.updateEntity(decorator.init(entity, loadoutMapper), entity);
+        entity.setEdited(true);
         accountRepository.save(entity);
         return accountMapper.toDto(entity);
     }
