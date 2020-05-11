@@ -1,6 +1,7 @@
 package com.pazzio.raspberry.glove.services;
 
 import com.pazzio.raspberry.glove.dtos.AccountDto;
+import com.pazzio.raspberry.glove.dtos.LoadoutDto;
 import com.pazzio.raspberry.glove.dtos.handling.GloveException;
 import com.pazzio.raspberry.glove.dtos.handling.GloveExceptionType;
 import com.pazzio.raspberry.glove.mappers.AccountMapper;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +50,11 @@ public class AccountService {
             entity.setToken(RandomStringUtils.randomAlphanumeric(20));
         }
         return accountMapper.toDto(entity);
+    }
+
+    public List<LoadoutDto> getLoadouts(String serialNumber){
+        Account entity = accountRepository.findBySerialNumber(serialNumber);
+        return entity.getLoadoutList().stream().map(loadoutMapper::toDto).collect(Collectors.toList());
     }
 
 

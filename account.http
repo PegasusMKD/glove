@@ -1,8 +1,8 @@
-POST http://localhost:8080/api/account/change
+POST http://34.107.52.197:8080//api/account/change
 Content-Type: application/json
 
 {
-  "serialNumber": "196092"
+  "serialNumber": "196093"
   }
 
 ###
