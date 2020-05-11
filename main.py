@@ -76,7 +76,9 @@ async def setLEDValues(pi: List[int], pins: List[int], data):
     :param data: A Dict of the data that contains the RGB values, as well as pause and active times
     """
     if start_active != True:
+        print("Returning...?")
         return
+
     print(f"{data}\n")
     for pin, color in zip(pins, ["red","green","blue"]):
         print(f"Set pin {pin} with value {data[color]} on data {data}")
@@ -110,6 +112,7 @@ async def startLEDs(pi: List[int], loadoutData: Dict[str, Any], allPins: List[Li
     :param allPins: The pins that are being used on the micro-controller segregated by finger
     """
     if start_active != True:
+        print("Returning...?")
         return
 
     loop = asyncio.get_event_loop()
@@ -162,11 +165,25 @@ async def start(pi: List[int], serialNumber: str, allPins: List[List[int]]):
         new_data = json.loads(new_loadout.content)
         if new_data["active"] == True:
             start_active = False
+            pending = asyncio.all_tasks()
+
+            notGathered = []
+            for task in pending:
+                if task.get_stack()[0].f_code.co_name in ["<module>", "main"]:
+                    notGathered.append(task)
+
+            for task in notGathered:
+                pending.remove(task)
+
+            await asyncio.gather(*pending, loop=loop)
+            print("Finished all tasks!")
             await sleep(2)
+            print("Seems like it!!!")
             start_active = True
+
             loop = asyncio.get_event_loop()
             print("Called the startLEDs")
-            loop.create_task(startLEDs([0], getActiveLoadout(new_data["loadouts"]), allPins))
+            loop.create_task(startLEDs([0], getActiveLoadout(new_data["loadoutList"]), allPins))
             # Not needed since not using Android and no need to tell the app that it reset the values
             # post("http://34.107.52.197:8080/api/account/changed", headers={"Content-Type": "application/json"},
             #      data={"serialNumber": serialNumber})
