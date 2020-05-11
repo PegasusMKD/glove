@@ -152,7 +152,7 @@ async def start(pi: io.pi, serialNumber: str, allPins: List[List[int]]):
     """
     global start_active
 
-    account_data = post("http://34.107.52.197:8080/api/account/loadouts", headers={"Content-Type": "application/json"},
+    account_data = post("http://34.107.14.197:8080/api/account/loadouts", headers={"Content-Type": "application/json"},
                         data=json.dumps({"serialNumber": serialNumber}))
     data = json.loads(account_data.content)
     print(data)
@@ -161,7 +161,7 @@ async def start(pi: io.pi, serialNumber: str, allPins: List[List[int]]):
     print("Called the startLEDs again!")
     while script_active:
         await sleep(10)
-        new_loadout = post("http://34.107.52.197:8080/api/account/change", headers={"Content-Type": "application/json"},
+        new_loadout = post("http://34.107.14.197:8080/api/account/change", headers={"Content-Type": "application/json"},
                            data=json.dumps({"serialNumber": serialNumber}))
         print(new_loadout)
         new_data = json.loads(new_loadout.content)
