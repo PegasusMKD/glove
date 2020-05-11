@@ -84,7 +84,7 @@ async def setLEDValues(pi: io.pi, pins: List[int], data):
     print(f"{data}\n")
     for pin, color in zip(pins, ["red","green","blue"]):
         print(f"Set pin {pin} with value {data[color]} on data {data}")
-        pi.set_PWM_dutycycle(pin, data[color])
+        pi.set_PWM_dutycycle(pin, 255 - data[color])
 
     await sleep(data["activeTime"])
     print(f"Finished wait time for {data}")
