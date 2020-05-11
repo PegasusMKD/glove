@@ -223,9 +223,9 @@ async def main():
 
     flattened_pins = [item for sublist in pins for item in sublist]
 
-    if not setModes(pi, flattened_pins):
-        print("Something went wrong with the mode setting! Please try again!")
-        return
+    # if not setModes(pi, flattened_pins):
+    #     print("Something went wrong with the mode setting! Please try again!")
+    #     return
 
     loop = asyncio.get_event_loop()
     loop.create_task(start(pi, serialNumber, pins))
