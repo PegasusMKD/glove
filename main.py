@@ -77,7 +77,7 @@ async def setLEDValues(pi: io.pi, pins: list[int], data: Dict[str, Any]):
             continue
         pi.set_PWM_dutycycle(pin, data[color])
 
-    await sleep(data["activeTime"])
+    await sleep(data["activeTime"] * 1000)
     if data["pauseTime"] != 0:
         empty = {
             "red": 0,
@@ -112,7 +112,7 @@ async def startLEDs(pi: io.pi, loadoutData: Dict[str, Any], allPins: List[List[i
     sorted_loadout = sortRGBValues(loadoutData["loadouts"])
     for pinsFinger, RGBValue, pauseTime in zip(allPins, sorted_loadout, loadoutData["pauseValues"]):
         setLEDValues(pi, pinsFinger, RGBValue)
-        await sleep(pauseTime)
+        await sleep(pauseTime * 1000)
 
     if 0 not in loadoutData["pauseValues"]:
         for pinsFinger in allPins:
@@ -132,10 +132,10 @@ async def start(pi: io.pi, serialNumber: str, allPins: list[list[int]]):
     """
     global start_active
 
-    account_data = post("http://localhost:8080/api/account/", headers={"Content-Type": "application/json"},
+    account_data = post("http://localhost:8080/api/account/loadouts", headers={"Content-Type": "application/json"},
                         data={"serialNumber": serialNumber})
     data = json.loads(account_data.content)
-    startLEDs(pi, getActiveLoadout(data["loadoutList"]), allPins)
+    startLEDs(pi, getActiveLoadout(data), allPins)
     while script_active:
         await sleep(10000)
         new_loadout = post("http://localhost:8080/api/account/change", headers={"Content-Type": "application/json"},
@@ -145,9 +145,10 @@ async def start(pi: io.pi, serialNumber: str, allPins: list[list[int]]):
             start_active = False
             await sleep(2000)
             start_active = True
-            startLEDs(pi, getActiveLoadout(new_data["loadouts"]), allPins)
-            post("http://localhost:8080/api/account/changed", headers={"Content-Type": "application/json"},
-                 data={"serialNumber": serialNumber})
+            startLEDs(pi, getActiveLoadout(new_data["loadoutList"]), allPins)
+            # Not needed since not using Android and no need to tell the app that it reset the values
+            # post("http://localhost:8080/api/account/changed", headers={"Content-Type": "application/json"},
+            #      data={"serialNumber": serialNumber})
 
 
 async def main():
