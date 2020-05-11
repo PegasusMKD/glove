@@ -8,7 +8,10 @@ def main():
         data = json.load(f)
     flattened_pins = [item for sublist in data["pins"] for item in sublist]
     for pin in flattened_pins:
-        pi.set_PWM_dutycycle(pin, 0)
+        try:
+            pi.set_PWM_dutycycle(pin, 0)
+        except:
+            continue
 
     print("All done!")
 
